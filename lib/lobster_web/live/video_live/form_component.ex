@@ -19,10 +19,10 @@ defmodule LobsterWeb.VideoLive.FormComponent do
         phx-change="validate"
         phx-submit="save"
       >
+        <.input type="select" label="Category" options={category_select_options(@categories)} field={@form[:category_id]} />
         <.input field={@form[:url]} type="text" label="Url" />
         <.input field={@form[:title]} type="text" label="Title" />
         <.input field={@form[:description]} type="text" label="Description" />
-        <%= @current_user.email %>
         <:actions>
           <.button phx-disable-with="Saving...">Save Video</.button>
         </:actions>
@@ -40,6 +40,14 @@ defmodule LobsterWeb.VideoLive.FormComponent do
      |> assign(assigns)
      |> assign_form(changeset)}
   end
+
+  def category_select_options(categories) do
+    for category <- categories, into: %{}, do: {category.name, category.id}
+  end
+
+  # defp load_categories(socket, _) do
+  #   assign(socket, :categories, Multimedia.list_alphabetical_categories())
+  # end
 
   @impl true
   def handle_event("validate", %{"video" => video_params}, socket) do
@@ -66,7 +74,7 @@ defmodule LobsterWeb.VideoLive.FormComponent do
          |> push_patch(to: socket.assigns.patch)}
 
       {:error, %Ecto.Changeset{} = changeset} ->
-        {:noreply, assign_form(socket, changeset)}
+        {:noreply, socket |> assign_form(changeset)}
     end
   end
 

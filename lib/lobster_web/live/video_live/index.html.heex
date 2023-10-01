@@ -6,16 +6,20 @@
     </.link>
   </:actions>
 </.header>
-<%= @current_user.email %>
 
 <.table
   id="videos"
   rows={@streams.videos}
-  row_click={fn {_id, video} -> JS.navigate(~p"/videos/#{video}") end}>
+  row_click={fn {_id, video} -> JS.navigate(~p"/videos/#{video}") end}
+>
   <:col :let={{_id, video}} label="Url"><%= video.url %></:col>
   <:col :let={{_id, video}} label="Title"><%= video.title %></:col>
   <:col :let={{_id, video}} label="Description"><%= video.description %></:col>
   <:col :let={{_id, video}} label="User"><%= video.user.email %></:col>
+  <:col :let={{_id, video}} label="Category"><%= video.category.name %></:col>
+  
+  
+
   <:action :let={{_id, video}}>
     <div class="sr-only">
       <.link navigate={~p"/videos/#{video}"}>Show</.link>
@@ -23,9 +27,8 @@
     <.link patch={~p"/videos/#{video}/edit"}>Edit</.link>
   </:action>
 
-
   <:action :let={{id, video}}>
-    <.link 
+    <.link
       phx-click={JS.push("delete", value: %{id: video.id}) |> hide("##{id}")}
       data-confirm="Are you sure?"
     >
@@ -34,7 +37,12 @@
   </:action>
 </.table>
 
-<.modal :if={@live_action in [:new, :edit]} id="video-modal" show on_cancel={JS.patch(~p"/videos")}>
+<.modal
+  :if={@live_action in [:new, :edit]}
+  id="video-modal"
+  show
+  on_cancel={JS.patch(~p"/videos")}
+>
   <.live_component
     module={LobsterWeb.VideoLive.FormComponent}
     id={@video.id || :new}
@@ -43,5 +51,6 @@
     video={@video}
     current_user={@current_user}
     patch={~p"/videos"}
+    categories={@categories}
   />
 </.modal>

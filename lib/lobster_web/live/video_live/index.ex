@@ -5,10 +5,10 @@ defmodule LobsterWeb.VideoLive.Index do
   alias Lobster.Multimedia.Video
   alias Lobster.Accounts
 
+
+
   @impl true
   def mount(_params, _session, socket) do
-  socket = assign(socket, :viri, Accounts.get_user!(1))
-  # socket = assign(socket, :viri, Accounts.get_user!(1))
     {:ok, stream(socket, :videos, Multimedia.list_videos())}
   end
 
@@ -18,20 +18,30 @@ defmodule LobsterWeb.VideoLive.Index do
   end
 
   defp apply_action(socket, :edit, %{"id" => id}) do
-    socket
-    |> assign(:page_title, "Edit Video")
-    |> assign(:video, Multimedia.get_video!(id))
+    if socket.assigns.current_user == Multimedia.get_video!(id).user do
+      socket
+      |> assign(:page_title, "Edit Video")
+      |> assign(:categories, Multimedia.list_alphabetical_categories())
+      |> assign(:video, Multimedia.get_user_video!(socket.assigns.current_user, id))
+
+    else
+      socket
+      |> redirect(to: ~p"/videos")
+      |> put_flash(:error, "You can only edit your own videos")
+    end
   end
 
   defp apply_action(socket, :new, _params) do
     socket
     |> assign(:page_title, "New Video")
+    |> assign(:categories, Multimedia.list_alphabetical_categories())
     |> assign(:video, %Video{})
   end
 
   defp apply_action(socket, :index, _params) do
     socket
     |> assign(:page_title, "Listing Videos")
+    |> assign(:categories, Multimedia.list_alphabetical_categories())
     |> assign(:video, nil)
   end
 
@@ -42,7 +52,7 @@ defmodule LobsterWeb.VideoLive.Index do
 
   @impl true
   def handle_event("delete", %{"id" => id}, socket) do
-    video = Multimedia.get_video!(id)
+    video = Multimedia.get_user_video!(socket.assigns.current_user, id)
     {:ok, _} = Multimedia.delete_video(video)
 
     {:noreply, stream_delete(socket, :videos, video)}

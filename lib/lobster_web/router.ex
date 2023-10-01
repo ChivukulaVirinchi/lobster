@@ -22,8 +22,6 @@ defmodule LobsterWeb.Router do
 
     get "/", PageController, :home
     # live "/videos", VideoLive.Index, :index
-
-
   end
 
   # Other scopes may use custom stacks.
@@ -69,15 +67,13 @@ defmodule LobsterWeb.Router do
 
     live_session :require_authenticated_user,
       on_mount: [{LobsterWeb.UserAuth, :ensure_authenticated}] do
-        live "/videos/new", VideoLive.Index, :new
+      live "/videos/new", VideoLive.Index, :new
 
+      live "/videos/:id/edit", VideoLive.Index, :edit
 
-    live "/videos/:id/edit", VideoLive.Index, :edit
-
-    live "/videos/:id/show/edit", VideoLive.Show, :edit
-
-    live "/videos", VideoLive.Index, :index
-    live "/videos/:id", VideoLive.Show, :show
+      live "/videos/:id/show/edit", VideoLive.Show, :edit
+      live "/videos", VideoLive.Index, :index
+      live "/videos/:id", VideoLive.Show, :show
 
       live "/users/settings", UserSettingsLive, :edit
       live "/users/settings/confirm_email/:token", UserSettingsLive, :confirm_email

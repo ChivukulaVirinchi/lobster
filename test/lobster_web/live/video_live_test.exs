@@ -5,7 +5,11 @@ defmodule LobsterWeb.VideoLiveTest do
   import Lobster.MultimediaFixtures
 
   @create_attrs %{description: "some description", title: "some title", url: "some url"}
-  @update_attrs %{description: "some updated description", title: "some updated title", url: "some updated url"}
+  @update_attrs %{
+    description: "some updated description",
+    title: "some updated title",
+    url: "some updated url"
+  }
   @invalid_attrs %{description: nil, title: nil, url: nil}
 
   defp create_video(_) do

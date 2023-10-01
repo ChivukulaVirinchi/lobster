@@ -5,8 +5,9 @@ defmodule Lobster.Multimedia do
 
   import Ecto.Query, warn: false
   alias Lobster.Repo
-alias Lobster.Accounts
+  alias Lobster.Accounts
   alias Lobster.Multimedia.Video
+  alias Lobster.Multimedia.Category
 
   @doc """
   Returns the list of videos.
@@ -21,7 +22,7 @@ alias Lobster.Accounts
   # videos_with_users = Video |> Repo.all () |> SRepo.preload (:user)
 
   def list_videos do
-    Repo.all(Video) |> Repo.preload(:user)
+    Repo.all(Video) |> Repo.preload(:user) |> Repo.preload(:category)
   end
 
   def list_user_videos(%Accounts.User{} = user) do
@@ -40,7 +41,6 @@ alias Lobster.Accounts
     from(v in query, where: v.user_id == ^user_id)
   end
 
-
   @doc """
   Gets a single video.
 
@@ -56,7 +56,11 @@ alias Lobster.Accounts
 
   """
   def get_video!(id) do
-    Repo.get!(Video, id) |> Repo.preload(:user)
+    Repo.get!(Video, id) |> Repo.preload(:user) |> Repo.preload(:category)
+  end
+
+  def create_category!(name) do
+    Repo.insert!(%Category{name: name}, on_conflict: :nothing)
   end
 
   @doc """
@@ -121,10 +125,14 @@ alias Lobster.Accounts
       %Ecto.Changeset{data: %Video{}}
 
   """
+
   def change_video(%Video{} = video, attrs \\ %{}) do
     Video.changeset(video, attrs)
   end
 
-
-
+  def list_alphabetical_categories do
+    Category
+    |> Category.alphabetical()
+    |> Repo.all()
+  end
 end
